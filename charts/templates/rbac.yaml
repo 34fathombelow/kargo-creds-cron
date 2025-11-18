@@ -1,0 +1,31 @@
+{{- if .Values.rbac.create }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kargo-creds-cronjob
+  namespace: {{ .Values.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kargo-creds-secret-reader
+  namespace: {{ .Values.namespace }}
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kargo-creds-secret-reader
+  namespace: {{ .Values.namespace }}
+subjects:
+  - kind: ServiceAccount
+    name: kargo-creds-cronjob
+    namespace: {{ .Values.namespace }}
+roleRef:
+  kind: Role
+  name: kargo-creds-secret-reader
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

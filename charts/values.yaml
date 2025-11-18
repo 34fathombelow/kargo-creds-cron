@@ -1,0 +1,36 @@
+# Namespace where this chart will deploy resources and where the *source* secrets live and are labeled with kargo.akuity.io/namespace
+namespace: akuity
+
+image:
+  repository: quay.io/34fathombelow/kargo-creds
+  tag: v0.1
+  pullPolicy: Always
+
+cronJob:
+  name: kargo-creds-cron
+  schedule: "0 */10 * * *" # every 10 hours
+
+rbac:
+  create: true   # controls ServiceAccount, Role, RoleBinding as a single unit
+
+apiSecret:
+  # If true, Helm will create the akuity-api-key Secret
+  create: false
+  name: akuity-api-key
+  apiKeyId: ""       # set when create=true
+  apiKeySecret: ""   # set when create=true
+
+env:
+  # Default control plane URL
+  serverUrl: https://akuity.cloud
+
+  # Akuity organization name
+  orgName: akuity-org
+
+  # Kargo instance name inside the org
+  kargoInstanceName: kargo-instance-name
+
+  # Additional env vars to pass
+  # extra:
+  #   - name: HTTP_PROXY
+  #     value: http://proxy.example.com:8080

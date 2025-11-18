@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.cronJob.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  schedule: {{ .Values.cronJob.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: kargo-creds-cronjob
+          restartPolicy: Never
+          containers:
+            - name: kargo-creds-cron
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              env:
+                - name: NAMESPACE
+                  value: {{ .Values.namespace | quote }}
+                - name: AKUITY_API_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.apiSecret.name }}
+                      key: apiKeyId
+                - name: AKUITY_API_KEY_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.apiSecret.name }}
+                      key: apiKeySecret
+                - name: AKUITY_SERVER_URL
+                  value: {{ .Values.env.serverUrl | quote }}
+                - name: AKUITY_ORG_NAME
+                  value: {{ .Values.env.orgName | quote }}
+                - name: KARGO_INSTANCE_NAME
+                  value: {{ .Values.env.kargoInstanceName | quote }}
+              {{- with .Values.env.extra }}
+              {{- toYaml . | nindent 14 }}
+              {{- end }}

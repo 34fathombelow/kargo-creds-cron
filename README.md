@@ -1,5 +1,5 @@
-# kargo-creds-sync:
-`kargo-creds-sync` automates syncing Kargo credential Secrets into an Akuity-managed Kargo instance. It discovers labeled Secrets in the Kubernetes namespace where the chart is installed, rewrites their namespaces dynamically, and applies them to a target Kargo instance using the Akuity CLI.
+# kargo-creds-cron:
+`kargo-creds-cron` automates syncing Kargo credential Secrets into an Akuity-managed Kargo instance. It discovers labeled Secrets in the Kubernetes namespace where the chart is installed, rewrites their namespaces dynamically, and applies them to a target Kargo instance using the Akuity CLI.
 
 This allows you to manage Kargo credentials declaratively via Secrets or preferably with a secrets manangment tool such as the External Secrets Operator.
 
@@ -21,7 +21,7 @@ This allows you to manage Kargo credentials declaratively via Secrets or prefera
 
 ## Requirements:
 * Valid Akuity API key (ID + secret)
-* Kargo Secrets must be labeled with kargo.akuity.io/namespace
+* Kargo Secrets must be labeled with `kargo.akuity.io/namespace`
 * Chart must be installed in the same namespace where the Secrets exist
 
 ## Secrets & Label Requirements:
@@ -66,7 +66,7 @@ metadata:
 | image.repository | string | Container repository | quay.io/34fathombelow/kargo-creds |
 | image.tag | string | Image tag | v0.1 |
 | image.pullPolicy | string | Kubernetes pull policy | Always |
-| cronJob.name | string | CronJob name | kargo-creds-apply-cronjob |
+| cronJob.name | string | CronJob name | kargo-creds-cron |
 | cronJob.schedule | string | Cron schedule expression | 0 */10 * * * |
 | rbac.create | bool | Whether to create RBAC objects | true |
 | apiSecret.create | bool | Whether Helm should create the API key Secret | false |

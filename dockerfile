@@ -8,6 +8,7 @@ FROM $BASE_IMAGE AS builder
 # If set to "stable", we resolve the real version in RUN below.
 ARG KUBECTL_VERSION="stable"
 ARG AKUITY_VERSION="stable"
+ARG YQ_VERSION="v4.45.4"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -36,7 +37,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y ca-certificates
   echo "Using akuity version: $AKUITY_VERSION" && \
   wget -qO /usr/local/bin/akuity \
     "https://dl.akuity.io/akuity-cli/${AKUITY_VERSION}/linux/${ARCH}/akuity" && \
-  chmod +x /usr/local/bin/akuity
+  chmod +x /usr/local/bin/akuity && \
+  \
+  wget -qO /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${ARCH}" && \
+  chmod +x /usr/local/bin/yq
 
 ####################################################################################################
 # Final image
@@ -56,6 +60,7 @@ RUN groupadd -g $KARGO_USER_ID kargo && \
 
 COPY --from=builder /usr/local/bin/kubectl /usr/local/bin/
 COPY --from=builder /usr/local/bin/akuity  /usr/local/bin/
+COPY --from=builder /usr/local/bin/yq   /usr/local/bin/
 
 # Expect your entrypoint and any helper scripts in src/*.sh
 COPY --chown=root:root src/*.sh /usr/local/bin/

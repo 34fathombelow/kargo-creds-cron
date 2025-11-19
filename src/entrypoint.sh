@@ -75,9 +75,15 @@ for SECRET in $SECRET_NAMES; do
   TARGET_NAMESPACE="$(kubectl get secret "$SECRET" -n "$NAMESPACE" \
     -o jsonpath='{.metadata.labels.kargo\.akuity\.io/namespace}')"
 
-  # Get secret and rewrite namespace using target namespace
+  # Get secret, drop annotations, and rewrite namespace using target namespace
   kubectl get secret "$SECRET" -n "$NAMESPACE" -o yaml \
-    | sed "s/^  namespace: .*/  namespace: ${TARGET_NAMESPACE}/" \
+    | TARGET_NAMESPACE="$TARGET_NAMESPACE" yq '
+        del(.metadata.annotations) |
+        del(.metadata.creationTimestamp) |
+        del(.metadata.resourceVersion) |
+        del(.metadata.uid) |
+        .metadata.namespace = env(TARGET_NAMESPACE)
+      ' \
     > "$OUT_FILE"
 done
 

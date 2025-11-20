@@ -54,12 +54,12 @@ echo "Searching for Kargo credential secrets in namespace '$NAMESPACE'"
 
 SECRET_NAMES="$(
   kubectl get secrets -n "$NAMESPACE" \
-    -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.metadata.labels.kargo\.akuity\.io/namespace}{"\n"}{end}' \
-  | awk '$2 != "" {print $1}'
+    -l 'kargo.akuity.io/namespace' \
+    -o jsonpath='{.items[*].metadata.name}'
 )"
 
 if [ -z "$SECRET_NAMES" ]; then
-  echo "No secrets found with label 'kargo.akuity.io/namespace' in namespace '$NAMESPACE'" >&2
+  echo "No secrets found with label 'kargo.akuity.io/namespace' in namespace '$NAMESPACE'. Nothing to sync."
   exit 1
 fi
 

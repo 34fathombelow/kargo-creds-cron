@@ -16,7 +16,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: kargo-creds-cron
-              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              image: "{{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}"
               imagePullPolicy: {{ .Values.image.pullPolicy }}
               env:
                 - name: NAMESPACE

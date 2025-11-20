@@ -3,4 +3,4 @@ name: kargo-creds-cron
 description: Sync Kargo credential Secrets from a source namespace into an Akuity Kargo instance using the Akuity CLI.
 type: application
 version: 0.2.0
-appVersion: "0.2.0"
+appVersion: "v0.2"

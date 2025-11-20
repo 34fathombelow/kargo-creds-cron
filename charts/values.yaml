@@ -3,7 +3,7 @@ namespace: akuity
 
 image:
   repository: quay.io/34fathombelow/kargo-creds
-  tag: v0.2
+  tag: ""  # default is the chart version
   pullPolicy: Always
 
 cronJob:

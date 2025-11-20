@@ -78,12 +78,18 @@ for SECRET in $SECRET_NAMES; do
   # Get secret, drop annotations, and rewrite namespace using target namespace
   kubectl get secret "$SECRET" -n "$NAMESPACE" -o yaml \
     | TARGET_NAMESPACE="$TARGET_NAMESPACE" yq '
-        del(.metadata.annotations) |
-        del(.metadata.creationTimestamp) |
-        del(.metadata.resourceVersion) |
-        del(.metadata.uid) |
-        .metadata.namespace = env(TARGET_NAMESPACE)
-      ' \
+        {
+          "apiVersion": .apiVersion,
+          "kind": .kind,
+          "type": .type,
+          "data": .data,
+          "metadata": {
+            "name": .metadata.name,
+            "namespace": strenv(TARGET_NAMESPACE),
+            "labels": .metadata.labels
+          }
+        }
+      ' - \
     > "$OUT_FILE"
 done
 

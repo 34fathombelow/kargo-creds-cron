@@ -64,7 +64,7 @@ metadata:
 | Key | Type | Description | Default |
 |-----|------|-------------|---------|
 | image.repository | string | Container repository | quay.io/34fathombelow/kargo-creds |
-| image.tag | string | Image tag | v0.1 |
+| image.tag | string | Image tag | v0.3 |
 | image.pullPolicy | string | Kubernetes pull policy | Always |
 | cronJob.name | string | CronJob name | kargo-creds-cron |
 | cronJob.schedule | string | Cron schedule expression | 0 */10 * * * |

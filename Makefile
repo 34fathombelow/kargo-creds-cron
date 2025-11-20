@@ -2,7 +2,7 @@
 
 REGISTRY ?= quay.io/34fathombelow
 IMAGE_NAME ?= kargo-creds
-VERSION ?= v0.2
+VERSION ?= v0.3
 IMAGE := $(REGISTRY)/$(IMAGE_NAME):$(VERSION)
 
 # Multi-arch platforms for pushing

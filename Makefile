@@ -2,7 +2,9 @@
 
 REGISTRY ?= quay.io/34fathombelow
 IMAGE_NAME ?= kargo-creds
-VERSION ?= v0.3
+# Try to get version from Chart.yaml appVersion, fallback to v0.3
+CHART_APP_VERSION := $(shell grep '^appVersion:' charts/Chart.yaml 2>/dev/null | sed 's/^appVersion: *"\(.*\)"/\1/' || echo "")
+VERSION ?= $(if $(CHART_APP_VERSION),$(CHART_APP_VERSION),v0.3)
 IMAGE := $(REGISTRY)/$(IMAGE_NAME):$(VERSION)
 
 # Multi-arch platforms for pushing

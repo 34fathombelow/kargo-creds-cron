@@ -1,14 +1,13 @@
 # kargo-creds-cron:
-`kargo-creds-cron` automates syncing Kargo credential Secrets into an Akuity-managed Kargo instance. It discovers labeled Secrets in the Kubernetes namespace where the chart is installed, rewrites their namespaces dynamically, and applies them to a target Kargo instance using the Akuity CLI.
+`kargo-creds-cron` automates syncing Kargo credential Secrets into an Akuity-managed Kargo instance. It discovers annotated Secrets in the Kubernetes namespace where the chart is installed, rewrites their namespaces dynamically, and applies them to a target Kargo instance using the Akuity CLI.
 
-This allows you to manage Kargo credentials declaratively via Secrets or preferably with a secrets manangment tool such as the External Secrets Operator.
+This allows you to manage Kargo credentials declaratively via Secrets or preferably with a secrets management tool such as the External Secrets Operator.
 
 ## Features:
-- Discovers Secrets labeled with:
-
-  `kargo.akuity.io/namespace: <target-namespace>`
-
-- Rewrites each Secret's `metadata.namespace` to the target namespace
+- Discovers Secrets annotated with `kargo.akuity.io/namespace` (supports comma-separated values for multiple namespaces)
+- Supports single or multiple target namespaces
+- Rewrites each Secret's `metadata.namespace` to the target namespace(s)
+- Creates separate Secret files for each target namespace when multiple namespaces are specified
 - Applies the transformed Secrets to a Kargo instance using:
 
   `akuity kargo apply -f /tmp/kargo-files`
@@ -21,21 +20,15 @@ This allows you to manage Kargo credentials declaratively via Secrets or prefera
 
 ## Requirements:
 * Valid Akuity API key (ID + secret)
-* Kargo Secrets must be labeled with `kargo.akuity.io/namespace`
+* Kargo Secrets must have annotation `kargo.akuity.io/namespace`
 * Chart must be installed in the same namespace where the Secrets exist
 
-## Secrets & Label Requirements:
+## Secrets & Annotation Requirements:
 All Kargo Secrets *must* exist in the namespace where the chart is deployed.
 
-Every Secret intended for sync must include the following which determines the namespace the Secret will be rewritten into:
+Every Secret intended for sync must include the `kargo.akuity.io/namespace` annotation which determines the namespace(s) the Secret will be rewritten into. The annotation value can be a single namespace or comma-separated multiple namespaces.
 
-```yaml
-metadata:
-  labels:
-    kargo.akuity.io/namespace: <target-namespace>
-```
-
-Example Secret:
+### Example:
 
 ```yaml
 apiVersion: v1
@@ -43,8 +36,9 @@ kind: Secret
 metadata:
   name: gitcreds
   namespace: akuity
-  labels:
+  annotations:
     kargo.akuity.io/namespace: kargo-creds
+  labels:
     kargo.akuity.io/cred-type: git
 type: Opaque
 data:
@@ -53,12 +47,9 @@ data:
   password: <base64>
 ```
 
-After transformation:
+After transformation, the Secret's namespace will be rewritten to the target namespace specified in the annotation.
 
-```yaml
-metadata:
-  namespace: kargo-creds
-```
+For multiple namespaces, use comma-separated values in the annotation (e.g., `kargo.akuity.io/namespace: kargo-creds,kargo-staging,kargo-prod`). See the `example/` directory for complete examples including multiple namespace usage.
 
 ## Helm Chart Values:
 | Key | Type | Description | Default |
@@ -87,4 +78,5 @@ Secrets applied to a Kargo instance will not be automatically removed if the ori
 * Support for automated pruning or reconciliation logic may be added in the future, but the current behavior is apply-only and intentionally conservative.
 
 ## Example Secrets:
-Example credential Secrets are included in the `examples` directory of this repository. These demonstrate the expected format for Kargo credentials and the required labels.
+Example credential Secrets are included in the `example/` directory of this repository:
+- `example/secrets.yaml` - Examples for different credential types, including single and multiple namespace usage
